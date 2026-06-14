@@ -38,6 +38,15 @@ var ocrDemo = {
 		canvas.isDrawing = false
 	},
 
+	onLoadFunction: () => {
+		console.log(this.ocrDemo);
+		this.ocrDemo.drawGrid();
+		const canvas = document.getElementById("canvas");
+		canvas.addEventListener("mousemove", this.ocrDemo.onMouseMove);
+		canvas.addEventListener("mousedown", this.ocrDemo.onMouseDown);
+		canvas.addEventListener("mouseup", this.ocrDemo.onMouseUp);
+	},
+
 	fillSquare: (ctx, x, y) => {
 		const xPixel = Math.floor(x / this.PIXEL_WIDTH);
 		const yPixel = Math.floor(y / this.PIXEL_WIDTH);
