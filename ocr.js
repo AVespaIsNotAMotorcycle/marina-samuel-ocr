@@ -6,86 +6,105 @@ var ocrDemo = {
 	trainArray: [],
 	trainingRequestCount: 0,
 
-	drawGrid: (ctx) => {
-		for (var x = this.PIXEL_WIDTH, y = this.PIXEL_WIDTH;
-				 x < this.CANVAS_WIDTH;
-				 x += this.PIXEL_WIDTH, y += this.PIXEL_WIDTH) {
-			ctx.strokeStyle = this.BLUE;
-			ctx.beginPath();
-			ctx.moveTo(x, 0);
-			ctx.lineTo(x, this.CANVAS_WIDTH);
-			ctx.stroke();
+	drawGrid: (context) => {
+		for (var x = this.ocrDemo.PIXEL_WIDTH, y = this.ocrDemo.PIXEL_WIDTH;
+				 x < this.ocrDemo.CANVAS_WIDTH;
+				 x += this.ocrDemo.PIXEL_WIDTH, y += this.ocrDemo.PIXEL_WIDTH) {
+			context.strokeStyle = this.ocrDemo.BLUE;
+			context.beginPath();
+			context.moveTo(x, 0);
+			context.lineTo(x, this.ocrDemo.CANVAS_WIDTH);
+			context.stroke();
 
-			ctx.beginPath();
-			ctx.moveTo(0, y);
-			ctx.lineTo(this.CANVAS_WIDTH, y);
-			ctx.stroke;
+			context.beginPath();
+			context.moveTo(0, y);
+			context.lineTo(this.ocrDemo.CANVAS_WIDTH, y);
+			context.stroke;
 		}
 	},
 
-	onMouseMove: (e, ctx, canvas) => {
+	getContext: () => {
+        const canvas = document.getElementById("canvas");
+		const context = canvas.getContext("2d");
+		return { canvas, context };
+	},
+
+	onMouseMove: (e) => {
+		const { canvas, context } = this.ocrDemo.getContext();
 		if (!canvas.isDrawing) return;
 		
-		this.fillSquare(ctx, e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+		this.ocrDemo.fillSquare(context, e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
 	},
 
-	onMouseDown: (e, ctx, canvas) => {
+	onMouseDown: (e) => {
+		const { canvas, context } = this.ocrDemo.getContext();
 		canvas.isDrawing = true;
-		this.fillSquare(ctx, e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+		this.ocrDemo.fillSquare(context, e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
 	},
 
-	onMouseUp: (e, ctx, canvas) => {
+	onMouseUp: (e) => {
+		const { canvas, context } = this.ocrDemo.getContext();
 		canvas.isDrawing = false
 	},
 
-	fillSquare: (ctx, x, y) => {
-		const xPixel = Math.floor(x / this.PIXEL_WIDTH);
-		const yPixel = Math.floor(y / this.PIXEL_WIDTH);
+    onLoadFunction: () => {
+		const { canvas, context } = this.ocrDemo.getContext();
+		console.log(canvas, context);
+        this.ocrDemo.drawGrid(context);
+        canvas.addEventListener("mousemove", this.ocrDemo.onMouseMove);
+        canvas.addEventListener("mousedown", this.ocrDemo.onMouseDown);
+        canvas.addEventListener("mouseup", this.ocrDemo.onMouseUp);
+    },
 
-		ctx.fillStyle = '#ffffff';
-		ctx.fillRect(xPixel * this.PIXEL_WIDTH,
-					 yPixel * this.PIXEL_WIDTH,
-					 this.PIXEL_WIDTH,
-					 this.PIXEL_WIDTH);
+
+	fillSquare: (context, x, y) => {
+		const xPixel = Math.floor(x / this.ocrDemo.PIXEL_WIDTH);
+		const yPixel = Math.floor(y / this.ocrDemo.PIXEL_WIDTH);
+
+		context.fillStyle = '#ffffff';
+		context.fillRect(xPixel * this.ocrDemo.PIXEL_WIDTH,
+					 yPixel * this.ocrDemo.PIXEL_WIDTH,
+					 this.ocrDemo.PIXEL_WIDTH,
+					 this.ocrDemo.PIXEL_WIDTH);
 	},
 
 	train: () => {
 		const digitVal = document.getElementById("digit").value;
-		if (!digitVal || this.data.indexOf(1) < 0) {
+		if (!digitVal || this.ocrDemo.data.indexOf(1) < 0) {
 			alert("Please type and draw a digit in order to train the network");
 			return;
 		}
 
-		this.trainArray.push({
-			y0: this.data,
+		this.ocrDemo.trainArray.push({
+			y0: this.ocrDemo.data,
 			label: parseInt(digitVal),
 		});
-		this.trainingRequestCount =+ 1;
+		this.ocrDemo.trainingRequestCount =+ 1;
 
-		if (this.trainingRequestCount >= this.BATCH_SIZE) {
+		if (this.ocrDemo.trainingRequestCount >= this.ocrDemo.BATCH_SIZE) {
 			alert("Sending training data to the server...");
 			const json = {
 				trainArray: this.trainArray,
 				train: true,
 			};
 
-			this.sendData(json);
-			this.trainingRequestCount = 0;
-			this.trainArray = [];
+			this.ocrDemo.sendData(json);
+			this.ocrDemo.trainingRequestCount = 0;
+			this.ocrDemo.trainArray = [];
 		}
 	},
 
 	test: () => {
-		if (this.data.indexOf(1) < 0) {
+		if (this.ocrDemo.data.indexOf(1) < 0) {
 			alert("Please draw a digit in order to test the network");
 			return;
 		}
 
 		const json = {
-			image: this.data,
+			image: this.ocrDemo.data,
 			predict: true,
 		};
-		this.sendData(json);
+		this.ocrDemo.sendData(json);
 	},
 
 	receiveResponse: (xmlHttp) => {
@@ -106,10 +125,10 @@ var ocrDemo = {
 
 	sendData: (json) => {
 		const xmlHttp = new XMLHttpRequest();
-		xmlHttp.open('POST', this.HOST + ':' + this.PORT, false);
+		xmlHttp.open('POST', this.ocrDemo.HOST + ':' + this.ocrDemo.PORT, false);
 
-		const throwError = () => { this.onError(xmlHttp); };
-		xmlHttp.onload = throwError.bind(this);
+		const throwError = () => { this.ocrDemo.onError(xmlHttp); };
+		xmlHttp.onload = throwError.bind(this.ocrDemo);
 
 		const message = JSON.strinify(json);
 		xmlHttp.setRequestHeader('Content-Length', message.length);
