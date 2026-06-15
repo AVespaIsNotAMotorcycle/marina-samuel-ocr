@@ -7,7 +7,7 @@ hostName = "localhost"
 serverPort = 8080
 
 class MyServer(BaseHTTPRequestHandler):
-    nn = NeuralNetwork()
+    nn = NeuralNetwork(50)
 
     def do_GET(self):
         self.send_response(200)
@@ -20,22 +20,22 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes("<p>This is an example web server.</p>", "utf-8"))
         self.wfile.write(bytes("</body></html>", "utf-8"))
 
-    def do_POST(s):
+    def do_POST(self):
         response_code = 200
         response = ""
-        var_len = int(s.headers.get('Content-Length'))
-        content = s.rfile.read(var_len);
+        var_len = int(self.headers.get('Content-Length'))
+        content = self.rfile.read(var_len);
         payload = json.loads(content);
         print(payload)
 
-        s.send_header("Content-Type", "application/json")
-        s.send_header("Access-Control-Allow-Origin", "*")
-        s.end_headers()
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
 
         if payload.get('train'):
             try:
-                nn.train(payload['trainArray'])
-                nn.save()
+                self.nn.train(payload['trainArray'])
+                self.nn.save()
             except Exception as inst:
                 print(inst)
                 response_code = 500
@@ -43,7 +43,7 @@ class MyServer(BaseHTTPRequestHandler):
             try:
                 response = {
                     "type": "test",
-                    "result": nn.predict(str(payload['image'])),
+                    "result": self.nn.predict(str(payload['image'])),
                 }
             except Exception as inst:
                 print(inst)
@@ -51,10 +51,10 @@ class MyServer(BaseHTTPRequestHandler):
         else:
             response_code = 400
     
-        s.send_response(response_code)
+        self.send_response(response_code)
     
         if response:
-            s.wfile.write(json.dumps(response))
+            self.wfile.write(json.dumps(response))
         return
 
 if __name__ == "__main__":
