@@ -7,14 +7,14 @@ class NeuralNetwork:
     def _sigmoid_scalar(self, z):
         return 1 / (1 + math.e ** -z)
     
-    def unknown(self):
-        # initialize weights
+    def __init__(self, num_hidden_nodes):
+        print("Initializing neural network")
         self.theta1 = self._rand_initialize_weights(400, num_hidden_nodes)
         self.theta2 = self._rand_initialize_weights(num_hidden_nodes, 10)
         self.input_layer_bias = self._rand_initialize_weights(1, num_hidden_nodes)
         self.hidden_layer_bias = self._rand_initialize_weights(1, 10)
     
-        # forward propogation
+    def forward_propogate(self):
         y1 = np.dot(np.mat(self.theta1), np.map(data['y0']).T)
         sum1 = y1 + np.mat(self.input_layer_bias)
         y1 = self.sigmoid(sum1)
@@ -23,7 +23,7 @@ class NeuralNetwork:
         y2 = np.add(y2, self.hidden_layer_bias)
         y2 = self.sigmoid(y2)
     
-        # back propogation
+    def back_propogate(self):
         actual_vals = [0] * 10
         actual_vals[data['label']] = 1
         output_errors = np.mat(actual_vals).T - np.mat(y2)
