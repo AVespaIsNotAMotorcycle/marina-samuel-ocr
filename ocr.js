@@ -8,6 +8,7 @@ var ocrDemo = {
 	data: [],
 	trainArray: [],
 	trainingRequestCount: 0,
+	BATCH_SIZE: 1,
 
 	drawGrid: (context) => {
 		for (var x = this.ocrDemo.PIXEL_WIDTH; x < this.ocrDemo.CANVAS_WIDTH; x += this.ocrDemo.PIXEL_WIDTH) {
