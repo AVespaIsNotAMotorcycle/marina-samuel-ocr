@@ -1,8 +1,8 @@
 var ocrDemo = {
 	CANVAS_WIDTH: 200,
 	PIXEL_WIDTH: 10,
-	TRANSLATED_WIDTH: this.CANVAS_WIDTH / this.PIXEL_WIDTH,
 
+	data: [],
 	trainArray: [],
 	trainingRequestCount: 0,
 
@@ -48,8 +48,9 @@ var ocrDemo = {
 	},
 
     onLoadFunction: () => {
+		this.ocrDemo.TRANSLATED_WIDTH = this.ocrDemo.CANVAS_WIDTH / this.ocrDemo.PIXEL_WIDTH;
+		data = new Array(parseInt(this.ocrDemo.TRANSLATED_WIDTH) ** 2).map(() => 0);
 		const { canvas, context } = this.ocrDemo.getContext();
-		console.log(canvas, context);
         this.ocrDemo.drawGrid(context);
         canvas.addEventListener("mousemove", this.ocrDemo.onMouseMove);
         canvas.addEventListener("mousedown", this.ocrDemo.onMouseDown);
@@ -60,6 +61,9 @@ var ocrDemo = {
 	fillSquare: (context, x, y) => {
 		const xPixel = Math.floor(x / this.ocrDemo.PIXEL_WIDTH);
 		const yPixel = Math.floor(y / this.ocrDemo.PIXEL_WIDTH);
+		
+		const index = (yPixel * this.ocrDemo.TRANSLATED_WIDTH) + xPixel;
+		this.ocrDemo.data[index] = 1;
 
 		context.fillStyle = '#000000';
 		context.fillRect(xPixel * this.ocrDemo.PIXEL_WIDTH,
