@@ -72,6 +72,13 @@ var ocrDemo = {
 						 this.ocrDemo.PIXEL_WIDTH);
 	},
 
+	resetCanvas: () => {
+		this.ocrDemo.data = this.ocrDemo.data.map(() => 0);
+		const { canvas, context } = this.ocrDemo.getContext();
+		context.reset();
+        this.ocrDemo.drawGrid(context);
+	},
+
 	train: () => {
 		const digitVal = document.getElementById("digit").value;
 		if (!digitVal || this.ocrDemo.data.indexOf(1) < 0) {
