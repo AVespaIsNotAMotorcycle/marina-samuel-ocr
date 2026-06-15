@@ -103,7 +103,7 @@ var ocrDemo = {
 
 		if (this.ocrDemo.trainingRequestCount >= this.ocrDemo.BATCH_SIZE) {
 			const json = {
-				trainArray: this.trainArray,
+				trainArray: this.ocrDemo.trainArray,
 				train: true,
 			};
 
