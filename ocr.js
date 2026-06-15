@@ -141,7 +141,7 @@ var ocrDemo = {
 		const throwError = () => { this.ocrDemo.onError(xmlHttp); };
 		xmlHttp.onload = throwError.bind(this.ocrDemo);
 
-		const message = JSON.strinify(json);
+		const message = JSON.stringify(json);
 		xmlHttp.setRequestHeader('Content-Length', message.length);
 		xmlHttp.setRequestHeader('Connection', 'close');
 		xmlHttp.send(message);
