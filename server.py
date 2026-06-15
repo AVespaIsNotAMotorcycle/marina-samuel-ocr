@@ -1,11 +1,14 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import time
 import json
+from ocr import NeuralNetwork
 
 hostName = "localhost"
 serverPort = 8080
 
 class MyServer(BaseHTTPRequestHandler):
+    nn = NeuralNetwork()
+
     def do_GET(self):
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
