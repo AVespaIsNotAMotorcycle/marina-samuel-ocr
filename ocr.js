@@ -2,6 +2,9 @@ var ocrDemo = {
 	CANVAS_WIDTH: 200,
 	PIXEL_WIDTH: 10,
 
+	HOST: 'http://localhost',
+	PORT: '8080',
+
 	data: [],
 	trainArray: [],
 	trainingRequestCount: 0,
