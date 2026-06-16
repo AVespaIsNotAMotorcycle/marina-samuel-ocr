@@ -8,7 +8,7 @@
 			<h1>OCR Demo</h1>
 			<canvas id="canvas" width="200" height="200"></canvas>
 			<form name="input">
-				<label>Digit: <input id="digit" type="number"></label>
+				<label>Digit: <input id="digit" min="0" max="9" type="number"></label>
 				<input type="button" value="Train" onclick="ocrDemo.train()">
 				<input type="button" value="Test" onclick="ocrDemo.test()">
 				<input type="button" value="Reset" onclick="ocrDemo.resetCanvas()">
