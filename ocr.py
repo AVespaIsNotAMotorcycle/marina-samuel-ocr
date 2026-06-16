@@ -2,6 +2,8 @@ import numpy as np
 import math
 
 class NeuralNetwork:
+    LEARNING_RATE = 0.1
+
     def _rand_initialize_weights(self, size_in, size_out):
         return [((x * 0.12) - 0.06) for x in np.random.rand(size_out, size_in)]
     
@@ -29,34 +31,45 @@ class NeuralNetwork:
         y2 = y2 + np.asmatrix(self.hidden_layer_bias)
         y2 = self.sigmoid(y2)
 
-        results = y2.T.tolist()[0]
+        predictions = y2.T.tolist()[0]
+
+        results = {
+            "y1": y1,
+            "y2": y2,
+            "predictions": predictions,
+        }
         return results
     
-    def back_propogate(self, prediction, actual_digit):
+    def back_propogate(self, pixels, results, actual_digit):
+        y1 = results['y1']
+        y2 = results['y2']
+
         actual_vals = [0] * 10
         actual_vals[actual_digit] = 1
-        output_errors = np.asmatrix(actual_vals).T - np.asmatrix(prediction)
-        hidden_errors = np.multiply(np.dot(np.asmatrix(self.theta2).T, output_errors), self.sigmoid_prime(sum1))
+        output_errors = np.asmatrix(actual_vals).T - np.asmatrix(y2)
+        hidden_errors = np.multiply(np.dot(np.asmatrix(self.theta2).T, output_errors), y1)
     
-        self.theta1 += self.LEARNING_RATE * np.dot(np.asmatrix(hidden_errors), np.asmatrix(data['y0']))
+        self.theta1 += self.LEARNING_RATE * np.dot(np.asmatrix(hidden_errors), np.asmatrix(pixels))
         self.theta2 += self.LEARNING_RATE * np.dot(np.asmatrix(output_errors), np.asmatrix(y1).T)
         self.hidden_layer_bias += self.LEARNING_RATE * output_errors
         self.input_layer_bias += self.LEARNING_RATE * hidden_errors
+
+    def save(self):
+        return
     
     def predict(self, test):
-        results = self.forward_propogate(test)
+        predictions = self.forward_propogate(test)['predictions']
     
-        # results = y2.T.tolist()[0]
-        highest_confidence = max(results)
+        highest_confidence = max(predictions)
         confidence_percent = int(highest_confidence * 100)
-        prediction = results.index(highest_confidence)
+        prediction = predictions.index(highest_confidence)
         print("Predicting digit is {0} with {1}% confidence".format(prediction, confidence_percent))
-        return results.index(max(results))
+        return predictions.index(max(predictions))
 
     def train_on_example(self, pixels, digit):
         self.predict(pixels)
-        prediction = self.forward_propogate(pixels)
-        self.back_propogate(prediction, digit)
+        results = self.forward_propogate(pixels)
+        self.back_propogate(pixels, results, digit)
         print("Actual digit is {0}".format(digit))
         return
 
