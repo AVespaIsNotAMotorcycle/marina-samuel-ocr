@@ -10,6 +10,9 @@ var ocrDemo = {
 	trainingRequestCount: 0,
 	BATCH_SIZE: 1,
 
+	recentPredictions: [],
+	RECENT_PREDICTIONS_MAX_LENGTH: 7,
+
 	drawGrid: (context) => {
 		for (var x = this.ocrDemo.PIXEL_WIDTH; x < this.ocrDemo.CANVAS_WIDTH; x += this.ocrDemo.PIXEL_WIDTH) {
 			context.strokeStyle = this.ocrDemo.BLUE;
@@ -107,7 +110,9 @@ var ocrDemo = {
 				train: true,
 			};
 
-			this.ocrDemo.sendData(json);
+			try {
+				this.ocrDemo.sendData(json);
+			} catch {}
 			this.ocrDemo.trainingRequestCount = 0;
 			this.ocrDemo.trainArray = [];
 		}
@@ -126,15 +131,29 @@ var ocrDemo = {
 		this.ocrDemo.sendData(json);
 	},
 
-	receiveResponse: (xmlHttp) => {
-		if (xmlHttp.status != 200) {
+	receiveResponse: ({ target }) => {
+		if (target.status != 200) {
 			alert("Server returned status " + xmlHttp.status);
 			return;
 		}
 
-		const responseJSON = JSON.parse(xmlHttp.responseText);
-		if (xmlHttp.responseText && responseJSON.type === "test") {
-			alert('The neural network predicts you wrote a "' + response.JSON.result + '"');
+		const responseJSON = JSON.parse(target.responseText);
+		if (target.responseText) {
+			const { result } = responseJSON;
+			if (Array.isArray(result)) {
+				result.forEach((item) => { this.ocrDemo.recentPredictions.push(item); });
+			} else {
+				const prediction = result.digit;
+				const actual = parseInt(document.getElementById("digit").value);
+				this.ocrDemo.recentPredictions.push({ prediction, actual });
+			}
+
+			const actualLength = this.ocrDemo.recentPredictions.length;
+			if (this.ocrDemo.recentPredictions.length > this.ocrDemo.RECENT_PREDICTIONS_MAX_LENGTH) {
+				this.ocrDemo.recentPredictions = this.ocrDemo.recentPredictions
+					.slice(actualLength - this.ocrDemo.RECENT_PREDICTIONS_MAX_LENGTH);
+			}
+			this.ocrDemo.showRecentPredictions();
 		}
 	},
 
@@ -144,14 +163,33 @@ var ocrDemo = {
 
 	sendData: (json) => {
 		const xmlHttp = new XMLHttpRequest();
-		xmlHttp.open('POST', this.ocrDemo.HOST + ':' + this.ocrDemo.PORT, false);
+		xmlHttp.open('POST', this.ocrDemo.HOST + ':' + this.ocrDemo.PORT);
 
-		const throwError = () => { this.ocrDemo.onError(xmlHttp); };
-		xmlHttp.onload = throwError.bind(this.ocrDemo);
+		xmlHttp.onload = this.ocrDemo.receiveResponse;
 
 		const message = JSON.stringify(json);
-		xmlHttp.setRequestHeader('Content-Length', message.length);
-		xmlHttp.setRequestHeader('Connection', 'close');
 		xmlHttp.send(message);
+	},
+
+	showRecentPredictions: () => {
+        const tableBody = document.getElementById("results-table-body");
+
+		const totalCorrect = this.ocrDemo.recentPredictions
+			.filter(({ prediction, actual }) => prediction === actual)
+			.length;
+		const accuracy = totalCorrect / this.ocrDemo.recentPredictions.length;
+		const accuracyString = accuracy === 1 ? '100' : String(accuracy * 100).slice(0, 2);
+
+		const tableContents = this.ocrDemo.recentPredictions
+			.map(({ prediction, actual }) => {
+				const cell1 = `<td>${prediction === actual}</td>`;
+				const cell2 = `<td>${prediction}</td>`;
+				const cell3 = `<td>${actual}</td>`;
+				const cell4 = `<td>${accuracyString}%</td>`;
+				return `<tr>${cell1}${cell2}${cell3}${cell4}</tr>`;
+			})
+			.join('');
+
+		tableBody.innerHTML = tableContents;
 	},
 }

@@ -95,7 +95,7 @@ class NeuralNetwork:
         results = self.forward_propogate(pixels)
         self.back_propogate(pixels, results, digit)
         print("Actual digit is {0}".format(digit))
-        return prediction
+        return { "prediction": prediction['digit'], "actual": digit }
 
     def train(self, training_data):
         predictions = []
