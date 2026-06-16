@@ -32,10 +32,10 @@ class NeuralNetwork:
         results = y2.T.tolist()[0]
         return results
     
-    def back_propogate(self):
+    def back_propogate(self, prediction, actual_digit):
         actual_vals = [0] * 10
-        actual_vals[data['label']] = 1
-        output_errors = np.asmatrix(actual_vals).T - np.asmatrix(y2)
+        actual_vals[actual_digit] = 1
+        output_errors = np.asmatrix(actual_vals).T - np.asmatrix(prediction)
         hidden_errors = np.multiply(np.dot(np.asmatrix(self.theta2).T, output_errors), self.sigmoid_prime(sum1))
     
         self.theta1 += self.LEARNING_RATE * np.dot(np.asmatrix(hidden_errors), np.asmatrix(data['y0']))
@@ -45,7 +45,6 @@ class NeuralNetwork:
     
     def predict(self, test):
         results = self.forward_propogate(test)
-
     
         # results = y2.T.tolist()[0]
         highest_confidence = max(results)
@@ -56,6 +55,8 @@ class NeuralNetwork:
 
     def train_on_example(self, pixels, digit):
         self.predict(pixels)
+        prediction = self.forward_propogate(pixels)
+        self.back_propogate(prediction, digit)
         print("Actual digit is {0}".format(digit))
         return
 
