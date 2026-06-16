@@ -3,7 +3,7 @@ import math
 import json
 
 class NeuralNetwork:
-    LEARNING_RATE = 0.5
+    LEARNING_RATE = 0.2
     _use_file = True
     NN_FILE_PATH = "saved_ann.json"
 
