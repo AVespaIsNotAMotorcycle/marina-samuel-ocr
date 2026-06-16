@@ -8,6 +8,7 @@ serverPort = 8080
 
 class MyServer(BaseHTTPRequestHandler):
     nn = NeuralNetwork(50)
+    nn._load()
 
     def do_GET(self):
         self.send_response(200)
