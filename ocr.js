@@ -1,6 +1,7 @@
 var ocrDemo = {
 	CANVAS_WIDTH: 200,
 	PIXEL_WIDTH: 10,
+	GREY: '#bbbbbb',
 
 	HOST: 'http://localhost',
 	PORT: '8080',
@@ -11,18 +12,18 @@ var ocrDemo = {
 	BATCH_SIZE: 1,
 
 	recentPredictions: [],
-	RECENT_PREDICTIONS_MAX_LENGTH: 7,
+	RECENT_PREDICTIONS_MAX_LENGTH: 10,
 
 	drawGrid: (context) => {
 		for (var x = this.ocrDemo.PIXEL_WIDTH; x < this.ocrDemo.CANVAS_WIDTH; x += this.ocrDemo.PIXEL_WIDTH) {
-			context.strokeStyle = this.ocrDemo.BLUE;
+			context.strokeStyle = this.ocrDemo.GREY;
 			context.beginPath();
 			context.moveTo(x, 0);
 			context.lineTo(x, this.ocrDemo.CANVAS_WIDTH);
 			context.stroke();
 		}
 		for (var y = this.ocrDemo.PIXEL_WIDTH; y < this.ocrDemo.CANVAS_WIDTH; y += this.ocrDemo.PIXEL_WIDTH) {
-			context.strokeStyle = this.ocrDemo.BLUE;
+			context.strokeStyle = this.ocrDemo.GREY;
 			context.beginPath();
 			context.moveTo(0, y);
 			context.lineTo(this.ocrDemo.CANVAS_WIDTH, y);
@@ -141,17 +142,17 @@ var ocrDemo = {
 		if (target.responseText) {
 			const { result } = responseJSON;
 			if (Array.isArray(result)) {
-				result.forEach((item) => { this.ocrDemo.recentPredictions.push(item); });
+				result.forEach((item) => { this.ocrDemo.recentPredictions.splice(0, 0, item); });
 			} else {
 				const prediction = result.digit;
 				const actual = parseInt(document.getElementById("digit").value);
-				this.ocrDemo.recentPredictions.push({ prediction, actual });
+				this.ocrDemo.recentPredictions.splice(0, 0, { prediction, actual });
 			}
 
 			const actualLength = this.ocrDemo.recentPredictions.length;
 			if (this.ocrDemo.recentPredictions.length > this.ocrDemo.RECENT_PREDICTIONS_MAX_LENGTH) {
 				this.ocrDemo.recentPredictions = this.ocrDemo.recentPredictions
-					.slice(actualLength - this.ocrDemo.RECENT_PREDICTIONS_MAX_LENGTH);
+					.slice(0, this.ocrDemo.RECENT_PREDICTIONS_MAX_LENGTH);
 			}
 			this.ocrDemo.showRecentPredictions();
 		}
@@ -180,12 +181,14 @@ var ocrDemo = {
 		const accuracy = totalCorrect / this.ocrDemo.recentPredictions.length;
 		const accuracyString = accuracy === 1 ? '100' : String(accuracy * 100).slice(0, 2);
 
+
 		const tableContents = this.ocrDemo.recentPredictions
-			.map(({ prediction, actual }) => {
-				const cell1 = `<td>${prediction === actual}</td>`;
+			.map(({ prediction, actual }, index) => {
+				const correct = prediction === actual;
+				const cell1 = `<td class="${correct ? 'true' : 'false'}">${correct}</td>`;
 				const cell2 = `<td>${prediction}</td>`;
 				const cell3 = `<td>${actual}</td>`;
-				const cell4 = `<td>${accuracyString}%</td>`;
+				const cell4 = index === 0 ?`<td>${accuracyString}%</td>` : '<td></td>';
 				return `<tr>${cell1}${cell2}${cell3}${cell4}</tr>`;
 			})
 			.join('');
