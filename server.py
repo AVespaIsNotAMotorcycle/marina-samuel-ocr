@@ -10,10 +10,13 @@ class MyServer(BaseHTTPRequestHandler):
     nn = NeuralNetwork(50)
     nn._load()
 
+    def end_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        return super().end_headers()
+
     def do_GET(self):
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
         self.wfile.write(bytes("<p>Request: %s</p>" % self.path, "utf-8"))
@@ -28,13 +31,12 @@ class MyServer(BaseHTTPRequestHandler):
         content = self.rfile.read(var_len);
         payload = json.loads(content);
 
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-
         if payload.get('train'):
             try:
-                self.nn.train(payload['trainArray'])
+                response = {
+                    "type": "test",
+                    "result": self.nn.train(payload['trainArray'])
+                }
                 self.nn.save()
             except Exception as inst:
                 print(inst)
@@ -51,7 +53,9 @@ class MyServer(BaseHTTPRequestHandler):
         else:
             response_code = 400
     
-        self.send_response(response_code)
+        self.send_response(response_code, response)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
         
         """
         if response:
