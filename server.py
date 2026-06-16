@@ -53,14 +53,11 @@ class MyServer(BaseHTTPRequestHandler):
         else:
             response_code = 400
     
-        self.send_response(response_code, response)
+        self.send_response(response_code)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
-        
-        """
         if response:
-            self.wfile.write(json.dumps(response))
-        """
+            self.wfile.write(bytes(json.dumps(response), 'utf-8'))
 
         return
 
