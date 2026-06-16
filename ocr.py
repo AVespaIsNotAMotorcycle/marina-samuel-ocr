@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 class NeuralNetwork:
-    LEARNING_RATE = 0.1
+    LEARNING_RATE = 0.5
 
     def _rand_initialize_weights(self, size_in, size_out):
         return [((x * 0.12) - 0.06) for x in np.random.rand(size_out, size_in)]
