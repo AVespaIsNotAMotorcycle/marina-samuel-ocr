@@ -88,16 +88,18 @@ class NeuralNetwork:
         confidence_percent = int(highest_confidence * 100)
         prediction = predictions.index(highest_confidence)
         print("Predicting digit is {0} with {1}% confidence".format(prediction, confidence_percent))
-        return predictions.index(max(predictions))
+        return { "digit": predictions.index(max(predictions)), "confidence": confidence_percent }
 
     def train_on_example(self, pixels, digit):
-        self.predict(pixels)
+        prediction = self.predict(pixels)
         results = self.forward_propogate(pixels)
         self.back_propogate(pixels, results, digit)
         print("Actual digit is {0}".format(digit))
-        return
+        return prediction
 
     def train(self, training_data):
+        predictions = []
         for example in training_data:
-            self.train_on_example(example['y0'], example['label'])
-        return
+            prediction = self.train_on_example(example['y0'], example['label'])
+            predictions.append(prediction)
+        return predictions
